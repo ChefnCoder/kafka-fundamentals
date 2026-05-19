@@ -1,0 +1,23 @@
+version: '3.8' #this is docker version
+# we list all services we are required to run for this project here under services, and for each service we would define name, container_name, image, port (HOST_PORT:CONTAINER_PORT) and enviornment variables.
+
+# suppose we want to have mongodb,redis and kafka in our project, then we list all 3 here. 
+
+# environment variables: 
+
+services:
+  kafka:
+    image: apache/kafka:latest
+    container_name: kafkademo
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1 # unique id for single-node kafka cluster
+      KAFKA_PROCESS_ROLES: broker,controller # defines the roles of the Kafka process, in this case, it will act as both a broker and a controller 
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093  # two listeners, one for each process role, PLAINTEXT for client communication and CONTROLLER for inter-broker communication.
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093 
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT # palin means no ssl encryption and no authentication, we dont do it in production.
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER # tell kafka which listener to use for controller communication
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1 # determines how many copies exist
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true" #Allows Kafka to automatically create topics when first used and topics are not found.
